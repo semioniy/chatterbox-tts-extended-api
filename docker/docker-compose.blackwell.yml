@@ -1,16 +1,20 @@
 version: '3.8'
 
+name: Chatterbox-TTS-Extended-API
 services:
-  # Main API Service (always included)
   chatterbox-tts:
     build:
       context: ..
       dockerfile: docker/Dockerfile.blackwell
-    container_name: chatterbox-tts-api-blackwell
+    container_name: Chatterbox-TTS
     ports:
       - '${PORT:-4123}:${PORT:-4123}'
     environment:
-      # API Configuration
+      - HF_HOME=/cache/hf
+      - HUGGINGFACE_HUB_CACHE=/cache/hf/hub
+      - TORCH_HOME=/cache/torch
+      - XDG_CACHE_HOME=/cache/xdg
+      
       - PORT=${PORT:-4123}
       - HOST=${HOST:-0.0.0.0}
 
@@ -32,20 +36,23 @@ services:
       # NVIDIA/CUDA settings
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
+      
+      - MEMORY_CLEANUP_INTERVAL=${MEMORY_CLEANUP_INTERVAL:-60}
+      - CUDA_CACHE_CLEAR_INTERVAL=${CUDA_CACHE_CLEAR_INTERVAL:-600}
+      
+      # Long text job settings (MUST be explicitly passed)
+      - LONG_TEXT_DATA_DIR=${LONG_TEXT_DATA_DIR:-/data/long_text_jobs}
+      - LONG_TEXT_MAX_LENGTH=${LONG_TEXT_MAX_LENGTH:-100000}
+      - LONG_TEXT_CHUNK_SIZE=${LONG_TEXT_CHUNK_SIZE:-2500}
+      - LONG_TEXT_SILENCE_PADDING_MS=${LONG_TEXT_SILENCE_PADDING_MS:-200}
+      - LONG_TEXT_JOB_RETENTION_DAYS=${LONG_TEXT_JOB_RETENTION_DAYS:-7}
+      - LONG_TEXT_MAX_CONCURRENT_JOBS=${LONG_TEXT_MAX_CONCURRENT_JOBS:-1}
+
     volumes:
-      # Mount voice sample file (optional)
-      - ${VOICE_SAMPLE_HOST_PATH:-../voice-sample.mp3}:/app/voice-sample.mp3:ro
+      - ${DATA_DIR:-../data}/cache:/cache
+      - ${DATA_DIR:-../data}/voices:/voices
+      - ${DATA_DIR:-../data}/long_text_jobs:/data/long_text_jobs
 
-      # Mount model cache for persistence
-      - chatterbox-models:${MODEL_CACHE_DIR:-/cache}
-
-      # Mount voice library for persistence
-      - chatterbox-voices:${VOICE_LIBRARY_DIR:-/voices}
-
-      # Optional: Mount custom voice samples directory (legacy)
-      - ${VOICE_SAMPLES_DIR:-../voice-samples}:/app/voice-samples:ro
-
-    # GPU support (enabled by default for this compose file)
     deploy:
       resources:
         reservations:
@@ -56,30 +63,22 @@ services:
 
     restart: unless-stopped
 
-    healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:${PORT:-4123}/health']
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 300s
+#    healthcheck:
+#      test: ['CMD', 'curl', '-f', 'http://localhost:${PORT:-4123}/health']
+#      interval: 300s
+#      timeout: 30s
+#      retries: 4
+#      start_period: 300s
 
-  # Frontend Service with integrated proxy (optional - requires 'frontend' profile)
+  # Frontend Service with integrated proxy (optional - requires 'Frontend' profile)
   frontend:
-    profiles: ['frontend', 'ui', 'fullstack']
+    profiles: ['Frontend']
     build:
       context: ../frontend
       dockerfile: Dockerfile
-    container_name: chatterbox-tts-frontend
+    container_name: Chatterbox-Frontend
     ports:
       - '${FRONTEND_PORT:-4321}:80' # Frontend serves on port 80 internally
     depends_on:
       - chatterbox-tts
     restart: unless-stopped
-
-volumes:
-  chatterbox-models:
-    driver: local
-  chatterbox-voices:
-    driver: local
-  chatterbox-longtext-data:
-    driver: local

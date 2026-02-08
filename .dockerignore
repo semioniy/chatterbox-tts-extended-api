@@ -15,7 +15,7 @@ pip-log.txt
 pip-delete-this-directory.txt
 
 # Virtual environments
-.env
+docker/.env
 .venv
 env/
 venv/

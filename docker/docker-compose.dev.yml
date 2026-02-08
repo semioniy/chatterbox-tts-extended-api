@@ -1,0 +1,13 @@
+services:
+  chatterbox-tts:
+    volumes:
+      # Mount your source code from the repo into the container
+      - ../app:/app/app
+      - ../main.py:/app/main.py
+
+    # Optional but strongly recommended: auto-reload on file change
+    command: >
+      sh -c "python -m uvicorn main:app
+      --host 0.0.0.0
+      --port ${PORT:-4123}
+      --reload"

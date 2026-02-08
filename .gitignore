@@ -21,7 +21,7 @@ wheels/
 MANIFEST
 
 # Virtual environments
-.env
+docker/.env
 .venv
 env/
 venv/
@@ -83,7 +83,7 @@ htmlcov/
 # .dockerignore
 
 # Environment variables (keep template)
-.env
+docker/.env
 !env.example
 
 # Temporary files
