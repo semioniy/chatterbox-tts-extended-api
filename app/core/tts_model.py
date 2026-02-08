@@ -5,7 +5,7 @@ TTS model initialization and management
 import os
 import asyncio
 from enum import Enum
-from typing import Optional, Dict, Any
+from typing import Dict, Any
 from chatterbox.tts import ChatterboxTTS
 from chatterbox.mtl_tts import ChatterboxMultilingualTTS
 from app.core.mtl import SUPPORTED_LANGUAGES
@@ -109,6 +109,8 @@ async def initialize_model():
         _initialization_progress = "Model ready"
         _initialization_error = None
         print(f"✓ Model initialized successfully on {_device}")
+        print("System startup complete\n")
+        print("--------------------------------------------------------------------------------------------------------\n")
         return _model
         
     except Exception as e:

@@ -5,7 +5,7 @@ Voice library management for storing and retrieving user-uploaded voices
 import os
 import json
 import hashlib
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional
 from datetime import datetime
 from pathlib import Path
 
@@ -197,7 +197,8 @@ class VoiceLibrary:
                     **metadata,
                     "exists": True,
                     "aliases": metadata.get("aliases", []),
-                    "language": metadata.get("language", "en")  # Default to English for old voices
+                    "language": metadata.get("language", "en"),  # Default to English for old voices,
+                    "id": metadata.get("name")
                 }
                 voices.append(voice_data)
             else:

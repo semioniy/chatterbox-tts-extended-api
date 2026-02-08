@@ -3,15 +3,15 @@ Text-to-speech endpoint
 """
 
 import io
+import logging
 import os
 import asyncio
 import tempfile
 import torch
 import torchaudio as ta
 import base64
-import json
 import struct
-from typing import Optional, List, Dict, Any, AsyncGenerator
+from typing import Optional, AsyncGenerator
 from fastapi import APIRouter, HTTPException, status, Form, File, UploadFile
 from fastapi.responses import StreamingResponse
 
@@ -24,6 +24,8 @@ from app.core import (
 )
 from app.core.tts_model import get_model, is_multilingual
 from app.core.text_processing import split_text_for_streaming, get_streaming_settings
+
+logger = logging.getLogger("app.speech")
 
 # Create router with aliasing support
 base_router = APIRouter()
@@ -793,7 +795,16 @@ async def generate_speech_sse(
 )
 async def text_to_speech(request: TTSRequest):
     """Generate speech from text using Chatterbox TTS with voice selection support"""
-    
+    print()
+    logger.info(
+        "--> POST /audio/speech \nSTART TTS: voice=%s stream_format=%s input_len=%d temp=%s cfg=%s exag=%s",
+        request.voice,
+        getattr(request, "stream_format", None),
+        len(request.input or ""),
+        request.temperature,
+        request.cfg_weight,
+        request.exaggeration,
+    )
     # Resolve voice name to file path and language
     voice_sample_path, language_id = resolve_voice_path_and_language(request.voice)
     

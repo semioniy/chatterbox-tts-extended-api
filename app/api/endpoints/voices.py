@@ -3,7 +3,7 @@ Voice library management endpoints
 """
 
 import os
-from typing import List, Optional
+import logging
 from fastapi import APIRouter, HTTPException, status, File, UploadFile, Form
 from fastapi.responses import FileResponse, JSONResponse
 
@@ -16,6 +16,7 @@ from app.config import Config
 # Create router with aliasing support
 base_router = APIRouter()
 router = add_route_aliases(base_router)
+logger = logging.getLogger("app.speech")
 
 @router.get(
     "/languages",

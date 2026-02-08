@@ -13,6 +13,7 @@ from app.core.background_tasks import start_background_processor, stop_backgroun
 from app.api.router import api_router
 from app.config import Config
 from app.core.version import get_version
+import logging
 
 
 ascii_art = r"""
@@ -79,6 +80,11 @@ app = FastAPI(
     docs_url="/docs",
     redoc_url="/redoc",
     lifespan=lifespan
+)
+
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
 )
 
 # Configure CORS
